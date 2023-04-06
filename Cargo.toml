@@ -1,0 +1,17 @@
+[package]
+name = "diff_logger"
+version = "0.1.0"
+edition = "2021"
+authors = ["Daviti Nalchevanidze <d.nalchevanidze@gmail.com>"]
+description = "Pretty diff logger for JSON values in rust"
+keywords = ["json", "diff", "log"]
+license = "MIT"
+repository = "https://github.com/nalchevanidze/diff_logger"
+
+[dependencies]
+serde_json= "1.0.91"
+colored="2.0.0"
+chrono ="0.4.23"
+
+[lib]
+doc-scrape-examples = true
