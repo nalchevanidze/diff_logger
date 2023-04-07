@@ -1,6 +1,6 @@
 use crate::types::{Change, FieldChange, FieldContentChange, ValueChange};
 use chrono::{DateTime, Duration, FixedOffset, Local};
-use colored::{ColoredString, Colorize};
+use colored::Colorize;
 use serde_json::Value;
 
 const NEW_LINE: &str = "\n";
@@ -19,35 +19,35 @@ fn lines(xs: Vec<String>) -> String {
 }
 
 pub trait PrettyLog {
-    fn pretty_log(&self) -> String;
+    fn pretty(&self) -> String;
 }
 
 impl PrettyLog for DateTime<FixedOffset> {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         let local: DateTime<Local> = DateTime::from(self.clone());
         format!("{}", local.format("%H:%M:%S"))
     }
 }
 impl PrettyLog for bool {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         self.to_string()
     }
 }
 
 impl PrettyLog for f64 {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         self.to_string()
     }
 }
 
 impl PrettyLog for String {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         self.to_string()
     }
 }
 
 impl PrettyLog for Duration {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         let hours = self.num_hours();
         let minutes = self.num_minutes() % 60;
 
@@ -66,10 +66,10 @@ impl PrettyLog for Duration {
 }
 
 impl PrettyLog for Value {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         match self {
             Value::Null => "null".to_owned(),
-            Value::Bool(b) => b.pretty_log(),
+            Value::Bool(b) => b.pretty(),
             Value::Number(n) => n.to_string(),
             v => v.to_string(),
         }
@@ -77,12 +77,8 @@ impl PrettyLog for Value {
 }
 
 impl<T: PrettyLog> PrettyLog for Change<T> {
-    fn pretty_log(&self) -> String {
-        format!(
-            "{} -> {}",
-            self.before.pretty_log(),
-            self.after.pretty_log()
-        )
+    fn pretty(&self) -> String {
+        format!("{} -> {}", self.before.pretty(), self.after.pretty())
     }
 }
 
@@ -93,11 +89,11 @@ fn pretty_numeric<T: PrettyLog, C: PrettyLog>(
 ) -> String {
     format!(
         "{} | {}",
-        change.pretty_log(),
+        change.pretty(),
         if is_positive {
-            diff.pretty_log().green()
+            diff.pretty().green()
         } else {
-            diff.pretty_log().red()
+            diff.pretty().red()
         }
     )
 }
@@ -107,11 +103,11 @@ fn print_headers(vs: &Vec<ValueChange>) -> String {
         return EMPTY.to_string();
     }
 
-    tuple(vs.iter().map(|v| v.pretty_log()).collect())
+    tuple(vs.iter().map(|v| v.pretty()).collect())
 }
 
 impl PrettyLog for FieldChange {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         let new_line = match &self.content {
             FieldContentChange::Diff(ValueChange::Object(xs)) => xs.len() > 0,
             FieldContentChange::Diff(ValueChange::List(xs)) => xs.len() > 0,
@@ -129,47 +125,43 @@ impl PrettyLog for FieldChange {
             &name,
             print_headers(&self.headers),
             if new_line { NEW_LINE } else { " " },
-            self.content.pretty_log()
+            self.content.pretty()
         )
     }
 }
 
 impl PrettyLog for FieldContentChange {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         match &self {
-            FieldContentChange::Diff(d) => d.pretty_log(),
-            FieldContentChange::Deleted(x) => x.pretty_log(),
-            FieldContentChange::New(x) => x.pretty_log(),
+            FieldContentChange::Diff(d) => d.pretty(),
+            FieldContentChange::Deleted(x) => x.pretty(),
+            FieldContentChange::New(x) => x.pretty(),
         }
     }
 }
 
 impl PrettyLog for ValueChange {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         match self {
             ValueChange::Object(fields) => {
-                lines(fields.iter().map(|x| indent(x.pretty_log())).collect())
+                lines(fields.iter().map(|x| indent(x.pretty())).collect())
             }
-            ValueChange::List(elems) => {
-                lines(elems.iter().map(|x| indent(x.pretty_log())).collect())
-            }
-            ValueChange::Value(ch) => ch.pretty_log(),
+            ValueChange::List(elems) => lines(elems.iter().map(|x| indent(x.pretty())).collect()),
+            ValueChange::Value(ch) => ch.pretty(),
             ValueChange::Number(ch) => {
                 pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
             }
-            ValueChange::Date(ch) => {
-                pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
-            }
-            ValueChange::String(ch) => ch.pretty_log(),
-            ValueChange::Bool(ch) => ch.pretty_log(),
+            ValueChange::Date(ch) => pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before),
+            ValueChange::String(ch) => ch.pretty(),
+            ValueChange::Bool(ch) => ch.pretty(),
         }
     }
 }
 
 impl<T: PrettyLog> PrettyLog for Option<T> {
-    fn pretty_log(&self) -> String {
+    fn pretty(&self) -> String {
         match self {
-            Some(v) => v.pretty_log(),
+            Some(v) => v.pretty(),
             None => "".to_owned(),
         }
     }

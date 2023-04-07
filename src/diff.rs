@@ -102,7 +102,7 @@ impl DiffLogger {
     }
 
     pub fn diff<T: Diff>(&self, prev: &T, next: &T) -> String {
-        prev.diff_value(next, self).pretty_log()
+        prev.diff_value(next, self).pretty()
     }
 
     pub fn log_diff<T: Diff>(&self, prev: &T, next: &T) {
