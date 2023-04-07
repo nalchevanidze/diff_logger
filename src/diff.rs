@@ -174,7 +174,7 @@ impl Diff for Value {
             })),
             (Value::String(b), Value::String(a)) => {
                 if let Some((before, after)) = to_timestamps(b, a) {
-                    Some(ValueChange::DateTime(Change { before, after }))
+                    Some(ValueChange::Date(Change { before, after }))
                 } else {
                     Some(ValueChange::String(Change {
                         before: b.clone(),

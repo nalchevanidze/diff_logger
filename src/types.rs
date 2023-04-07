@@ -13,7 +13,7 @@ pub enum ValueChange {
     Object(Vec<FieldChange>),
     Value(Change<Value>),
     Number(Change<f64>),
-    DateTime(Change<DateTime<FixedOffset>>),
+    Date(Change<DateTime<FixedOffset>>),
     String(Change<String>),
     Bool(Change<bool>),
 }

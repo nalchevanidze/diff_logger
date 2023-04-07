@@ -157,7 +157,7 @@ impl PrettyLog for ValueChange {
             ValueChange::Number(ch) => {
                 pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
             }
-            ValueChange::DateTime(ch) => {
+            ValueChange::Date(ch) => {
                 pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
             }
             ValueChange::String(ch) => ch.pretty_log(),
