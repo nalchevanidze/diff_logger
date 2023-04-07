@@ -7,6 +7,10 @@ fn main() {
     let prev = json!({
         "name": "David",
         "age": 43,
+        "ver": {
+            "timestamp": "2023-04-07T11:17:50+00:00",
+            "value": "some text",
+        },
         "state": {
             "timestamp": "2023-04-07T11:17:50+00:00",
             "removedField": "some text",
@@ -25,6 +29,10 @@ fn main() {
             "timestamp": "2023-04-07T12:17:50+00:00",
             "newField": 4,
             "valueChange": 42352
+        },
+        "ver": {
+            "timestamp": "2023-04-07T11:18:50+00:00",
+            "value": "some text",
         },
         "email": [
             { "num": "John@email.com"},

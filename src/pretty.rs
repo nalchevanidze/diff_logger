@@ -102,32 +102,20 @@ fn pretty_numeric<T: PrettyLog, C: PrettyLog>(
     )
 }
 
-fn print_header(name: &ColoredString, vs: &Vec<ValueChange>) -> String {
+fn print_headers(vs: &Vec<ValueChange>) -> String {
     if vs.len() == 0 {
-        return format!("{}", name);
+        return EMPTY.to_string();
     }
 
-    format!(
-        "{}{}",
-        name,
-        tuple(vs.iter().map(|v| v.pretty_log()).collect())
-    )
-}
-
-fn gen_separator<'a, T>(xs: &Vec<T>) -> &'a str {
-    if xs.len() > 0 {
-        NEW_LINE
-    } else {
-        EMPTY
-    }
+    tuple(vs.iter().map(|v| v.pretty_log()).collect())
 }
 
 impl PrettyLog for FieldChange {
     fn pretty_log(&self) -> String {
-        let separator = match &self.content {
-            FieldContentChange::Diff(ValueChange::Object(xs)) => gen_separator(xs),
-            FieldContentChange::Diff(ValueChange::List(xs)) => gen_separator(xs),
-            _ => ": ",
+        let new_line = match &self.content {
+            FieldContentChange::Diff(ValueChange::Object(xs)) => xs.len() > 0,
+            FieldContentChange::Diff(ValueChange::List(xs)) => xs.len() > 0,
+            _ => false,
         };
 
         let name = match &self.content {
@@ -137,9 +125,10 @@ impl PrettyLog for FieldChange {
         };
 
         format!(
-            " {}{}{}",
-            print_header(&name, &self.headers),
-            separator,
+            " {}{}:{}{}",
+            &name,
+            print_headers(&self.headers),
+            if new_line { NEW_LINE } else { " " },
             self.content.pretty_log()
         )
     }
