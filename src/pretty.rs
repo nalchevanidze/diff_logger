@@ -42,7 +42,7 @@ impl PrettyLog for f64 {
 
 impl PrettyLog for String {
     fn pretty(&self) -> String {
-        self.to_string()
+        format!("\"{}\"", self.to_string())
     }
 }
 
