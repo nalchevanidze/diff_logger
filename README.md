@@ -9,7 +9,7 @@ use diff_logger::DiffLogger;
 use serde_json::json;
 
 fn main() {
-    let logger = DiffLogger::new().set_header("timestamp");
+    let logger = DiffLogger::new().set_header("timestamp", false);
 
     let prev = json!({
         "name": "David",
@@ -40,6 +40,7 @@ fn main() {
 
     logger.log_diff(&prev, &next);
 }
+
 ```
 
 logs:  
