@@ -166,9 +166,11 @@ impl PrettyLog for ValueChange {
             }
             ValueChange::Value(ch) => ch.pretty_log(),
             ValueChange::Number(ch) => {
-                pretty_numeric(ch, ch.after - ch.before, (ch.after - ch.before) > 0.0)
+                pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
             }
-            ValueChange::DateTime(ch) => pretty_numeric(ch, ch.after - ch.before, true),
+            ValueChange::DateTime(ch) => {
+                pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
+            }
             ValueChange::String(ch) => ch.pretty_log(),
             ValueChange::Bool(ch) => ch.pretty_log(),
         }
