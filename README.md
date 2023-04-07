@@ -45,13 +45,13 @@ fn main() {
 logs:  
 
 ```
- - age: 43 -> 35 | -8
- - state(13:17:50 -> 14:17:50 | 1:0 hours)
-   - removedField-: "some text"
-   - valueChange: 45 -> 42352 | 42307
-   - newField+: 4
- - email
-   - 0
-     - num: david1@email.com -> John@email.com
- - name: David -> John
+ ~ name: David -> John
+ ~ age: 43 -> 35 | -8
+ ~ state(13:17:50 -> 14:17:50 | 1:0 hours)
+   + newField: 4
+   - removedField: "some text"
+   ~ valueChange: 45 -> 42352 | 42307
+ ~ email
+   ~ 0
+     ~ num: david1@email.com -> John@email.com
 ```
