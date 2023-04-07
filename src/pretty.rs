@@ -14,6 +14,10 @@ fn tuple(xs: Vec<String>) -> String {
     format!("({})", xs.join(", "))
 }
 
+fn lines(xs: Vec<String>) -> String {
+    xs.join(NEW_LINE)
+}
+
 pub trait PrettyLog {
     fn pretty_log(&self) -> String;
 }
@@ -82,8 +86,20 @@ impl<T: PrettyLog> PrettyLog for Change<T> {
     }
 }
 
-fn pretty_numeric<T: PrettyLog, C: PrettyLog>(change: &Change<T>, diff: C) -> String {
-    format!("{} | {}", change.pretty_log(), diff.pretty_log().green())
+fn pretty_numeric<T: PrettyLog, C: PrettyLog>(
+    change: &Change<T>,
+    diff: C,
+    is_positive: bool,
+) -> String {
+    format!(
+        "{} | {}",
+        change.pretty_log(),
+        if is_positive {
+            diff.pretty_log().green()
+        } else {
+            diff.pretty_log().red()
+        }
+    )
 }
 
 fn print_header(name: &ColoredString, vs: &Vec<ValueChange>) -> String {
@@ -98,7 +114,7 @@ fn print_header(name: &ColoredString, vs: &Vec<ValueChange>) -> String {
     )
 }
 
-fn collection_separator<'a, T>(xs: &Vec<T>) -> &'a str {
+fn gen_separator<'a, T>(xs: &Vec<T>) -> &'a str {
     if xs.len() > 0 {
         NEW_LINE
     } else {
@@ -109,8 +125,8 @@ fn collection_separator<'a, T>(xs: &Vec<T>) -> &'a str {
 impl PrettyLog for FieldChange {
     fn pretty_log(&self) -> String {
         let separator = match &self.content {
-            FieldContentChange::Diff(ValueChange::Object(xs)) => collection_separator(xs),
-            FieldContentChange::Diff(ValueChange::List(xs)) => collection_separator(xs),
+            FieldContentChange::Diff(ValueChange::Object(xs)) => gen_separator(xs),
+            FieldContentChange::Diff(ValueChange::List(xs)) => gen_separator(xs),
             _ => ": ",
         };
 
@@ -143,16 +159,16 @@ impl PrettyLog for ValueChange {
     fn pretty_log(&self) -> String {
         match self {
             ValueChange::Object(fields) => {
-                let entries: Vec<_> = fields.iter().map(|x| indent(x.pretty_log())).collect();
-                entries.join(NEW_LINE)
+                lines(fields.iter().map(|x| indent(x.pretty_log())).collect())
             }
             ValueChange::List(elems) => {
-                let entries: Vec<_> = elems.iter().map(|x| indent(x.pretty_log())).collect();
-                entries.join(NEW_LINE)
+                lines(elems.iter().map(|x| indent(x.pretty_log())).collect())
             }
             ValueChange::Value(ch) => ch.pretty_log(),
-            ValueChange::Number(ch) => pretty_numeric(ch, ch.after - ch.before),
-            ValueChange::DateTime(ch) => pretty_numeric(ch, ch.after - ch.before),
+            ValueChange::Number(ch) => {
+                pretty_numeric(ch, ch.after - ch.before, (ch.after - ch.before) > 0.0)
+            }
+            ValueChange::DateTime(ch) => pretty_numeric(ch, ch.after - ch.before, true),
             ValueChange::String(ch) => ch.pretty_log(),
             ValueChange::Bool(ch) => ch.pretty_log(),
         }
