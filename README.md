@@ -14,6 +14,10 @@ fn main() {
     let prev = json!({
         "name": "David",
         "age": 43,
+        "ver": {
+            "timestamp": "2023-04-07T11:17:50+00:00",
+            "value": "some text",
+        },
         "state": {
             "timestamp": "2023-04-07T11:17:50+00:00",
             "removedField": "some text",
@@ -33,6 +37,10 @@ fn main() {
             "newField": 4,
             "valueChange": 42352
         },
+        "ver": {
+            "timestamp": "2023-04-07T11:18:50+00:00",
+            "value": "some text",
+        },
         "email": [
             { "num": "John@email.com"},
         ]
@@ -40,19 +48,19 @@ fn main() {
 
     logger.log_diff(&prev, &next);
 }
-
 ```
 
 logs:  
 
 ```
- ~ name: David -> John
- ~ age: 43 -> 35 | -8
- ~ state(13:17:50 -> 14:17:50 | 1:0 hours)
-   + newField: 4
-   - removedField: "some text"
-   ~ valueChange: 45 -> 42352 | 42307
- ~ email
-   ~ 0
-     ~ num: david1@email.com -> John@email.com
+~ ver(13:17:50 -> 13:18:50 | 1:0 minutes):
+~ age: 43 -> 35 | -8
+~ name: "David" -> "John"
+~ state(13:17:50 -> 14:17:50 | 1:0 hours):
+  + newField: 4
+  - removedField: "some text"
+  ~ valueChange: 45 -> 42352 | 42307
+~ email:
+  ~ 0:
+    ~ num: "david1@email.com" -> "John@email.com"
 ```
