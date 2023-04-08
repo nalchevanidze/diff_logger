@@ -156,7 +156,7 @@ impl Diff for Value {
                 if fields.is_empty() {
                     None
                 } else {
-                    Some(ValueChange::Object(drop_headers(fields, logger)))
+                    Some(ValueChange::Entries(drop_headers(fields, logger)))
                 }
             }
             (Value::Array(ls1), Value::Array(ls2)) => {
@@ -165,7 +165,7 @@ impl Diff for Value {
                 if fields.is_empty() {
                     None
                 } else {
-                    Some(ValueChange::List(drop_headers(fields, logger)))
+                    Some(ValueChange::Entries(drop_headers(fields, logger)))
                 }
             }
             (Value::Number(x), Value::Number(y)) => Some(ValueChange::Number(Change {

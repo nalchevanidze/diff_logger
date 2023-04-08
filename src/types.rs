@@ -9,13 +9,21 @@ pub struct Change<T> {
 
 #[derive(Debug, Clone)]
 pub enum ValueChange {
-    List(Vec<FieldChange>),
-    Object(Vec<FieldChange>),
+    Entries(Vec<FieldChange>),
     Value(Change<Value>),
     Number(Change<f64>),
     Date(Change<DateTime<FixedOffset>>),
     String(Change<String>),
     Bool(Change<bool>),
+}
+
+impl ValueChange {
+    pub fn is_leaf(&self) -> bool {
+        match &self {
+            ValueChange::Entries(xs) => xs.len() == 0,
+            _ => true,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

@@ -109,8 +109,7 @@ fn print_headers(vs: &Vec<ValueChange>) -> String {
 impl PrettyLog for FieldChange {
     fn pretty(&self) -> String {
         let new_line = match &self.content {
-            FieldContentChange::Diff(ValueChange::Object(xs)) => xs.len() > 0,
-            FieldContentChange::Diff(ValueChange::List(xs)) => xs.len() > 0,
+            FieldContentChange::Diff(v) => !v.is_leaf(),
             _ => false,
         };
 
@@ -120,12 +119,20 @@ impl PrettyLog for FieldChange {
             FieldContentChange::New(_) => format!("+ {}", self.name).green(),
         };
 
+        let value = self.content.pretty();
+
         format!(
-            " {}{}:{}{}",
+            "{}{}:{}{}",
             &name,
             print_headers(&self.headers),
-            if new_line { NEW_LINE } else { " " },
-            self.content.pretty()
+            if new_line {
+                NEW_LINE
+            } else if value.is_empty() {
+                EMPTY
+            } else {
+                " "
+            },
+            value
         )
     }
 }
@@ -143,10 +150,9 @@ impl PrettyLog for FieldContentChange {
 impl PrettyLog for ValueChange {
     fn pretty(&self) -> String {
         match self {
-            ValueChange::Object(fields) => {
-                lines(fields.iter().map(|x| indent(x.pretty())).collect())
+            ValueChange::Entries(elems) => {
+                lines(elems.iter().map(|x| indent(x.pretty())).collect())
             }
-            ValueChange::List(elems) => lines(elems.iter().map(|x| indent(x.pretty())).collect()),
             ValueChange::Value(ch) => ch.pretty(),
             ValueChange::Number(ch) => {
                 pretty_numeric(ch, ch.after - ch.before, ch.after > ch.before)
@@ -164,5 +170,97 @@ impl<T: PrettyLog> PrettyLog for Option<T> {
             Some(v) => v.pretty(),
             None => "".to_owned(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use colored::Colorize;
+
+    use super::PrettyLog;
+    use crate::types::{Change, FieldChange, FieldContentChange, ValueChange};
+
+    fn object(fs: &[FieldChange]) -> ValueChange {
+        ValueChange::Entries(fs.to_vec())
+    }
+
+    fn field(name: &str, ch: ValueChange) -> FieldChange {
+        FieldChange {
+            content: FieldContentChange::Diff(ch),
+            name: name.to_owned(),
+            headers: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn empty_object() {
+        assert_eq!(object(&[]).pretty(), "");
+    }
+
+    #[test]
+    fn header_only_positive() {
+        let diff = FieldChange {
+            content: FieldContentChange::Diff(object(&[])),
+            name: "stats".to_owned(),
+            headers: [ValueChange::Number(Change {
+                before: 1.0,
+                after: 2.0,
+            })]
+            .to_vec(),
+        };
+
+        assert_eq!(
+            diff.pretty(),
+            format!("~ stats(1 -> 2 | {}):", 1.to_string().green())
+        );
+    }
+
+    #[test]
+    fn header_only_negative() {
+        let diff = FieldChange {
+            content: FieldContentChange::Diff(object(&[])),
+            name: "stats".to_owned(),
+            headers: [ValueChange::Number(Change {
+                before: 423.0,
+                after: 2.0,
+            })]
+            .to_vec(),
+        };
+
+        assert_eq!(
+            diff.pretty(),
+            format!("~ stats(423 -> 2 | {}):", (-421).to_string().red())
+        );
+    }
+
+    #[test]
+    fn object_fields() {
+        let diff = object(&[field(
+            "field",
+            object(&[
+                field(
+                    "text",
+                    ValueChange::String(Change {
+                        before: "A".to_owned(),
+                        after: "B".to_owned(),
+                    }),
+                ),
+                field(
+                    "number",
+                    ValueChange::Number(Change {
+                        before: 1.0,
+                        after: 2.0,
+                    }),
+                ),
+            ]),
+        )]);
+
+        assert_eq!(
+            diff.pretty(),
+            format!(
+                "~ field:\n  ~ text: \"A\" -> \"B\"\n  ~ number: 1 -> 2 | {}",
+                1.to_string().green()
+            )
+        );
     }
 }
