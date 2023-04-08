@@ -122,9 +122,10 @@ impl PrettyLog for FieldChange {
         let value = self.content.pretty();
 
         format!(
-            "{}{}:{}{}",
+            "{}{}{}{}{}",
             &name,
             print_headers(&self.headers),
+            if value.is_empty() { EMPTY } else { ":" },
             if new_line {
                 NEW_LINE
             } else if value.is_empty() {
@@ -211,7 +212,7 @@ mod tests {
 
         assert_eq!(
             diff.pretty(),
-            format!("~ stats(1 -> 2 | {}):", 1.to_string().green())
+            format!("~ stats(1 -> 2 | {})", 1.to_string().green())
         );
     }
 
@@ -229,7 +230,7 @@ mod tests {
 
         assert_eq!(
             diff.pretty(),
-            format!("~ stats(423 -> 2 | {}):", (-421).to_string().red())
+            format!("~ stats(423 -> 2 | {})", (-421).to_string().red())
         );
     }
 

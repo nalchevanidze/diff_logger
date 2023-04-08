@@ -39,5 +39,7 @@ fn main() {
         ]
     });
 
+    println!("----------------------\n");
     logger.log_diff(&prev, &next);
+    println!("\n----------------------");
 }
