@@ -259,7 +259,9 @@ mod tests {
         assert_eq!(
             diff.pretty(),
             format!(
-                "~ field:\n  ~ text: \"A\" -> \"B\"\n  ~ number: 1 -> 2 | {}",
+                "~ field:\
+                \n  ~ text: \"A\" -> \"B\"\
+                \n  ~ number: 1 -> 2 | {}",
                 1.to_string().green()
             )
         );
