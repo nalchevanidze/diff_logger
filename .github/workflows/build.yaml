@@ -20,4 +20,10 @@ jobs:
       - name: Build
         run: |
           cargo build
+
+      - name: Tests
+        run: cargo test
+
+      - name: Example
+        run: |      
           cargo run --example simple
