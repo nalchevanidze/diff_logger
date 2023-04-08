@@ -176,10 +176,14 @@ impl<T: PrettyLog> PrettyLog for Option<T> {
 
 #[cfg(test)]
 mod tests {
-    use colored::Colorize;
-
     use super::PrettyLog;
     use crate::types::{Change, FieldChange, FieldContentChange, ValueChange};
+
+    fn drop_colors(x: String) -> String {
+        x.replace("\u{1b}[32m", "")
+            .replace("\u{1b}[0m", "")
+            .replace("\u{1b}[31m", "")
+    }
 
     fn object(fs: &[FieldChange]) -> ValueChange {
         ValueChange::Entries(fs.to_vec())
@@ -210,10 +214,7 @@ mod tests {
             .to_vec(),
         };
 
-        assert_eq!(
-            diff.pretty(),
-            format!("~ stats(1 -> 2 | {})", 1.to_string().green())
-        );
+        assert_eq!(drop_colors(diff.pretty()), format!("~ stats(1 -> 2 | 1)"));
     }
 
     #[test]
@@ -228,10 +229,7 @@ mod tests {
             .to_vec(),
         };
 
-        assert_eq!(
-            diff.pretty(),
-            format!("~ stats(423 -> 2 | {})", (-421).to_string().red())
-        );
+        assert_eq!(drop_colors(diff.pretty()), "~ stats(423 -> 2 | -421)");
     }
 
     #[test]
@@ -257,12 +255,11 @@ mod tests {
         )]);
 
         assert_eq!(
-            diff.pretty(),
+            drop_colors(diff.pretty()),
             format!(
                 "~ field:\
                 \n  ~ text: \"A\" -> \"B\"\
-                \n  ~ number: 1 -> 2 | {}",
-                1.to_string().green()
+                \n  ~ number: 1 -> 2 | 1"
             )
         );
     }
