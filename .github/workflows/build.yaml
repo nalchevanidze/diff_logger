@@ -26,4 +26,4 @@ jobs:
 
       - name: Example
         run: |      
-          cargo run --example simple
+          cargo run --example demo
