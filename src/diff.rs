@@ -1,5 +1,5 @@
 use crate::{
-    types::{Change, FieldChange, FieldContentChange, ValueChange},
+    types::{Change, FieldChange, FieldContentChange, Header, ValueChange},
     PrettyLog,
 };
 use chrono::{DateTime, FixedOffset};
@@ -13,11 +13,16 @@ fn lookup_header(key: &str, value: &Value) -> Value {
     }
 }
 
-fn get_header(key: &str, old: &Value, cur: &Value, options: &DiffLogger) -> Option<ValueChange> {
-    lookup_header(key, old).diff_value(&lookup_header(key, cur), options)
+fn get_header(key: &str, old: &Value, cur: &Value, options: &DiffLogger) -> Option<Header> {
+    lookup_header(key, old)
+        .diff_value(&lookup_header(key, cur), options)
+        .map(|content| Header {
+            name: key.to_string(),
+            content,
+        })
 }
 
-fn gen_headers(old_field: &Value, current_field: &Value, options: &DiffLogger) -> Vec<ValueChange> {
+fn gen_headers(old_field: &Value, current_field: &Value, options: &DiffLogger) -> Vec<Header> {
     options
         .headers
         .iter()

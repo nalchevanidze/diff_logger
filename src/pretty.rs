@@ -1,4 +1,4 @@
-use crate::types::{Change, FieldChange, FieldContentChange, ValueChange};
+use crate::types::{Change, FieldChange, FieldContentChange, Header, ValueChange};
 use chrono::{DateTime, Duration, FixedOffset, Local};
 use colored::Colorize;
 use serde_json::Value;
@@ -103,7 +103,13 @@ fn pretty_numeric<T: PrettyLog, C: PrettyLog>(
     )
 }
 
-fn print_headers(vs: &Vec<ValueChange>) -> String {
+impl PrettyLog for Header {
+    fn pretty(&self) -> String {
+        self.content.pretty()
+    }
+}
+
+fn print_headers(vs: &Vec<Header>) -> String {
     if vs.len() == 0 {
         return EMPTY.to_string();
     }
@@ -182,7 +188,7 @@ impl<T: PrettyLog> PrettyLog for Option<T> {
 mod tests {
     use super::PrettyLog;
     use crate::types::{
-        test_utils::{field, object},
+        test_utils::{field, header_num, object},
         Change, FieldChange, FieldContentChange, ValueChange,
     };
 
@@ -205,11 +211,7 @@ mod tests {
         let diff = FieldChange {
             content: FieldContentChange::Diff(object(&[])),
             name: "stats".to_owned(),
-            headers: [ValueChange::Number(Change {
-                before: 1.0,
-                after: 2.0,
-            })]
-            .to_vec(),
+            headers: [header_num("num", 1.0, 2.0)].to_vec(),
         };
 
         assert_eq!(drop_colors(diff.pretty()), format!("~ stats:◖1 -> 2 | 1◗"));
@@ -220,11 +222,7 @@ mod tests {
         let diff = FieldChange {
             content: FieldContentChange::Diff(object(&[])),
             name: "stats".to_owned(),
-            headers: [ValueChange::Number(Change {
-                before: 423.0,
-                after: 2.0,
-            })]
-            .to_vec(),
+            headers: [header_num("num", 423.0, 2.0)].to_vec(),
         };
 
         assert_eq!(drop_colors(diff.pretty()), "~ stats:◖423 -> 2 | -421◗");

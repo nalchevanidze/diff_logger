@@ -34,17 +34,23 @@ pub enum FieldContentChange {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct Header {
+    pub name: String,
+    pub content: ValueChange,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct FieldChange {
     pub name: String,
-    pub headers: Vec<ValueChange>,
+    pub headers: Vec<Header>,
     pub content: FieldContentChange,
 }
 
 #[cfg(test)]
 pub mod test_utils {
-    use crate::types::{ ValueChange};
-    use super::{FieldChange, FieldContentChange};
-    
+    use super::{Change, FieldChange, FieldContentChange, Header};
+    use crate::types::ValueChange;
+
     pub fn object(fs: &[FieldChange]) -> ValueChange {
         ValueChange::Entries(fs.to_vec())
     }
@@ -54,6 +60,13 @@ pub mod test_utils {
             content: FieldContentChange::Diff(ch),
             name: name.to_owned(),
             headers: Vec::new(),
+        }
+    }
+
+    pub fn header_num(name: &str, before: f64, after: f64) -> Header {
+        Header {
+            name: name.to_string(),
+            content: ValueChange::Number(Change { before, after }),
         }
     }
 }
