@@ -221,7 +221,7 @@ mod tests {
             .to_vec(),
         };
 
-        assert_eq!(drop_colors(diff.pretty()), format!("~ stats◖1 -> 2 | 1◗"));
+        assert_eq!(drop_colors(diff.pretty()), format!("~ stats:◖1 -> 2 | 1◗"));
     }
 
     #[test]
@@ -236,7 +236,7 @@ mod tests {
             .to_vec(),
         };
 
-        assert_eq!(drop_colors(diff.pretty()), "~ stats◖423 -> 2 | -421◗");
+        assert_eq!(drop_colors(diff.pretty()), "~ stats:◖423 -> 2 | -421◗");
     }
 
     #[test]
