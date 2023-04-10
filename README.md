@@ -53,14 +53,14 @@ fn main() {
 logs:  
 
 ```
-~ ver(13:17:50 -> 13:18:50 | 1:0 minutes):
-~ age: 43 -> 35 | -8
 ~ name: "David" -> "John"
-~ state(13:17:50 -> 14:17:50 | 1:0 hours):
-  + newField: 4
-  - removedField: "some text"
-  ~ valueChange: 45 -> 42352 | 42307
 ~ email:
   ~ 0:
     ~ num: "david1@email.com" -> "John@email.com"
+~ state:◖13:17:50 -> 14:17:50 | 1:0 hours◗
+  - removedField: "some text"
+  ~ valueChange: 45 -> 42352 | 42307
+  + newField: 4
+~ ver:◖13:17:50 -> 13:18:50 | 1:0 minutes◗
+~ age: 43 -> 35 | -8
 ```

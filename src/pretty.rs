@@ -10,8 +10,13 @@ fn indent(x: String) -> String {
     x.replace("\n", "\n  ")
 }
 
-fn tuple(xs: Vec<String>) -> String {
-    format!("({})", xs.join(", "))
+fn headers(xs: Vec<String>) -> String {
+    format!(
+        "{}{}{}",
+        "\u{25D6}".bright_black(),
+        xs.join(", ").on_bright_black(),
+        "\u{25D7}".bright_black()
+    )
 }
 
 fn lines(xs: Vec<String>) -> String {
@@ -103,7 +108,7 @@ fn print_headers(vs: &Vec<ValueChange>) -> String {
         return EMPTY.to_string();
     }
 
-    tuple(vs.iter().map(|v| v.pretty()).collect())
+    headers(vs.iter().map(|v| v.pretty()).collect())
 }
 
 impl PrettyLog for FieldChange {
@@ -114,7 +119,7 @@ impl PrettyLog for FieldChange {
         };
 
         let name = match &self.content {
-            FieldContentChange::Diff(_) => format!("~ {}", self.name).normal(),
+            FieldContentChange::Diff(_) => format!("~ {}", self.name).yellow(),
             FieldContentChange::Deleted(_) => format!("- {}", self.name).red(),
             FieldContentChange::New(_) => format!("+ {}", self.name).green(),
         };
@@ -122,10 +127,9 @@ impl PrettyLog for FieldChange {
         let value = self.content.pretty();
 
         format!(
-            "{}{}{}{}{}",
+            "{}:{}{}{}",
             &name,
             print_headers(&self.headers),
-            if value.is_empty() { EMPTY } else { ":" },
             if new_line {
                 NEW_LINE
             } else if value.is_empty() {
@@ -183,6 +187,9 @@ mod tests {
         x.replace("\u{1b}[32m", "")
             .replace("\u{1b}[0m", "")
             .replace("\u{1b}[31m", "")
+            .replace("\u{1b}[90m", "")
+            .replace("\u{1b}[33m", "")
+            .replace("\u{1b}[100m", "")
     }
 
     fn object(fs: &[FieldChange]) -> ValueChange {
@@ -214,7 +221,7 @@ mod tests {
             .to_vec(),
         };
 
-        assert_eq!(drop_colors(diff.pretty()), format!("~ stats(1 -> 2 | 1)"));
+        assert_eq!(drop_colors(diff.pretty()), format!("~ stats◖1 -> 2 | 1◗"));
     }
 
     #[test]
@@ -229,7 +236,7 @@ mod tests {
             .to_vec(),
         };
 
-        assert_eq!(drop_colors(diff.pretty()), "~ stats(423 -> 2 | -421)");
+        assert_eq!(drop_colors(diff.pretty()), "~ stats◖423 -> 2 | -421◗");
     }
 
     #[test]
