@@ -9,9 +9,9 @@ license = "MIT"
 repository = "https://github.com/nalchevanidze/diff_logger"
 
 [dependencies]
-serde_json= "1.0.91"
+serde_json= "1.0.95"
 colored="2.0.0"
-chrono ="0.4.23"
+chrono ="0.4.24"
 
 [lib]
 doc-scrape-examples = true
