@@ -181,7 +181,10 @@ impl<T: PrettyLog> PrettyLog for Option<T> {
 #[cfg(test)]
 mod tests {
     use super::PrettyLog;
-    use crate::types::{Change, FieldChange, FieldContentChange, ValueChange};
+    use crate::types::{
+        test_utils::{field, object},
+        Change, FieldChange, FieldContentChange, ValueChange,
+    };
 
     fn drop_colors(x: String) -> String {
         x.replace("\u{1b}[32m", "")
@@ -190,18 +193,6 @@ mod tests {
             .replace("\u{1b}[90m", "")
             .replace("\u{1b}[33m", "")
             .replace("\u{1b}[100m", "")
-    }
-
-    fn object(fs: &[FieldChange]) -> ValueChange {
-        ValueChange::Entries(fs.to_vec())
-    }
-
-    fn field(name: &str, ch: ValueChange) -> FieldChange {
-        FieldChange {
-            content: FieldContentChange::Diff(ch),
-            name: name.to_owned(),
-            headers: Vec::new(),
-        }
     }
 
     #[test]

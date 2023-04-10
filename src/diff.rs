@@ -42,21 +42,28 @@ fn diff_field(
         })
 }
 
-fn diff_fields(
-    old_map: &Map<String, Value>,
-    current_map: &Map<String, Value>,
-    options: &DiffLogger,
-) -> Vec<FieldChange> {
+fn all_keys(old_map: &Map<String, Value>, current_map: &Map<String, Value>) -> Vec<String> {
     let keys: HashSet<_> = old_map
         .keys()
         .chain(current_map.keys())
         .into_iter()
         .collect();
 
-    keys.iter()
+    let mut vec: Vec<String> = keys.iter().map(|x| x.to_string()).collect();
+    vec.sort();
+    return vec;
+}
+
+fn diff_fields(
+    old_map: &Map<String, Value>,
+    current_map: &Map<String, Value>,
+    options: &DiffLogger,
+) -> Vec<FieldChange> {
+    all_keys(old_map, current_map)
+        .iter()
         .flat_map(|key| {
-            let old_field = old_map.get(key.to_owned());
-            let current_field = current_map.get(key.to_owned());
+            let old_field = old_map.get(key);
+            let current_field = current_map.get(key);
             let name = key.to_string();
 
             match (old_field, current_field) {
@@ -191,5 +198,56 @@ impl Diff for Value {
                 after: after.clone(),
             })),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use crate::{
+        types::{
+            test_utils::{field, object},
+            Change, ValueChange,
+        },
+        Diff, DiffLogger,
+    };
+
+    #[test]
+    fn no_changes() {
+        let logger = DiffLogger::new();
+
+        let value = json!({
+            "a": "David",
+            "b": 43,
+        });
+
+        assert_eq!(value.diff_value(&value.clone(), &logger), None);
+    }
+
+    #[test]
+    fn basic_changes() {
+        let logger = DiffLogger::new();
+
+        let prev = json!({
+            "a": "David",
+            "b": 43,
+        });
+
+        let next = json!({
+            "a": "John",
+            "b": 43,
+        });
+
+        assert_eq!(
+            prev.diff_value(&next, &logger),
+            Some(object(&[field(
+                "a",
+                ValueChange::String(Change {
+                    before: "David".to_string(),
+                    after: "John".to_string()
+                })
+            )]))
+        );
     }
 }
